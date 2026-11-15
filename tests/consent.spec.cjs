@@ -303,6 +303,20 @@ test('the banner follows the page language and direction, and stays at the physi
   await expect(banner(page)).toHaveAttribute('dir', 'ltr');
 });
 
+test('the demo’s snippet builder writes the one-line install from the form', async ({page}) => {
+  await page.goto('/');
+  const out = page.locator('#snippet-output');
+  await expect(out).toContainText('data-policy="/privacy/"');
+  await expect(out).toContainText('data-categories="analytics"');
+  await page.getByLabel('Hebrew policy URL').fill('/he/privacy/');
+  await page.getByLabel('Marketing').check();
+  await page.getByLabel('I use Google tags (Consent Mode v2)').uncheck();
+  await expect(out).toContainText('data-policy-he="/he/privacy/"');
+  await expect(out).toContainText('data-categories="analytics marketing"');
+  await expect(out).toContainText('data-consent-mode="false"');
+  await expect(out).toContainText('meliora-consent@v0.2.0/dist/meliora-consent.min.js');
+});
+
 test('Accept all and Reject all look identical', async ({page}) => {
   await page.goto('/');
   const look = name => banner(page).getByRole('button', {name}).evaluate(el => {
@@ -372,6 +386,56 @@ test.describe('with the Meliora accessibility panel', () => {
       });
       expect(hidden).toBeNull();
     }
+  });
+
+  test('one tag each: settings from data- attributes, and each loads its own stylesheet', async ({page}) => {
+    await page.addInitScript(() => {
+      localStorage.setItem('meliora.a11y', JSON.stringify({contrast: true}));
+      document.addEventListener('DOMContentLoaded', () => { window.__early = document.documentElement.className; }, {capture: true, once: true});
+    });
+    await page.goto('/tests/fixtures/one-line.html');
+    await expect(page.locator('.a11y-trigger')).toBeVisible();
+    await expect(banner(page)).toBeVisible();
+    // Settings from the attributes; the boot parts ran in <head>, before the page was parsed.
+    expect(await page.evaluate(() => window.__early)).toContain('a11y-contrast');
+    expect(await page.evaluate(() => window.MelioraA11yConfig.statementUrl)).toEqual({default: '/accessibility/', he: '/accessibility/he/'});
+    expect(await page.evaluate(() => [Object.keys(window.MelioraConsentState.config.categories), window.MelioraConsentState.config.policyVersion, typeof window.dataLayer])).toEqual([['analytics', 'marketing'], '7', 'undefined']);
+    await expect(banner(page).getByRole('link', {name: 'Cookie policy'})).toHaveAttribute('href', '/privacy/');
+    await expect(banner(page)).toContainText('analytics and marketing');
+    expect(await page.locator('link[rel="stylesheet"]').evaluateAll(links => links.map(l => new URL(l.href).pathname))).toEqual(['/demo/demo.css', '/panel-dist/meliora-a11y.css', '/dist/meliora-consent.css']);
+    await axe(page);
+    await banner(page).getByRole('button', {name: 'Accept all'}).click();
+    await expect.poll(() => ran(page)).toEqual(['analytics']);
+  });
+
+  test('one tag each, in Hebrew: per-language links from the attributes', async ({page}) => {
+    await page.goto('/tests/fixtures/one-line.html?lang=he');
+    await expect(banner(page).getByRole('link', {name: 'מדיניות העוגיות'})).toHaveAttribute('href', '/he/privacy/');
+  });
+
+  test('the accessibility menu offers “Cookie settings” and hands focus back correctly', async ({page}) => {
+    await page.goto('/tests/fixtures/one-line.html');
+    await page.locator('.a11y-trigger').click();
+    const panelDialog = page.locator('#a11y-panel');
+    await expect(panelDialog).toBeVisible();
+    const cookies = panelDialog.getByRole('button', {name: 'Cookie settings'});
+    await expect(cookies).toBeVisible();
+    await cookies.click();
+    await expect(panelDialog).toBeHidden();
+    await expect(dialog(page)).toBeVisible();
+    await expect(page.locator('#mc-dialog-title')).toBeFocused();
+    await page.keyboard.press('Escape');
+    await expect(dialog(page)).toBeHidden();
+    await expect(page.locator('.a11y-trigger')).toBeFocused();
+  });
+
+  test('without the banner, the accessibility menu has no “Cookie settings”', async ({page}) => {
+    await page.goto('/tests/fixtures/none.html');
+    await page.addScriptTag({url: '/panel-dist/meliora-a11y.js'}).catch(() => {});
+    await page.waitForFunction(() => window.MelioraA11y);
+    await page.evaluate(() => window.MelioraA11y.open());
+    await expect(page.locator('#a11y-panel')).toBeVisible();
+    await expect(page.locator('#a11y-panel').getByRole('button', {name: 'Cookie settings'})).toHaveCount(0);
   });
 
   test('the panel’s High contrast setting applies to the banner and the dialog', async ({page}) => {

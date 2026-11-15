@@ -30,3 +30,18 @@ footer button { min-height: 2.75rem; padding: .5rem 1rem; border: 1px solid var(
 footer button:hover { background: var(--tint); }
 footer button[hidden] { display: none; }
 .embed { padding: 1.5rem; background: var(--surface); }
+code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+p code { padding: .1em .35em; border-radius: .3em; background: var(--tint); font-size: .9em; }
+.snippet { display: grid; gap: 1.25rem; grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr)); align-items: start; }
+.snippet form { display: grid; gap: .5rem; padding: 1.25rem; border: 1px solid var(--line); border-radius: .75rem; background: var(--surface); }
+.snippet label { font-weight: 600; }
+.snippet .hint { font-weight: 400; color: var(--muted); }
+.snippet input:not([type="checkbox"]) { width: 100%; min-height: 2.75rem; padding: .5rem .75rem; border: 1px solid var(--field-border); border-radius: .5rem; background: var(--surface); color: var(--ink); font: inherit; }
+.snippet input[type="checkbox"] { width: 1.15rem; height: 1.15rem; margin-inline-end: .4rem; vertical-align: -.15em; accent-color: var(--button); }
+.snippet fieldset { display: grid; gap: .35rem; margin: .5rem 0; padding: .75rem 1rem; border: 1px solid var(--line); border-radius: .5rem; }
+.snippet legend { padding: 0 .25rem; font-weight: 600; }
+.snippet fieldset label { font-weight: 400; }
+.snippet pre { margin: 0 0 .75rem; font-size: .875rem; white-space: pre; overflow-x: auto; overflow-wrap: normal; }
+.snippet button { min-height: 2.75rem; padding: .5rem 1.25rem; border: 2px solid var(--button); border-radius: .5rem; background: var(--button); color: #fff; font: inherit; font-weight: 600; cursor: pointer; }
+.snippet button:hover { background: var(--button-hover); border-color: var(--button-hover); }
+#snippet-status { min-height: 1.5em; margin-top: .5rem; color: var(--muted); }

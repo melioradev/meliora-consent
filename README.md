@@ -52,30 +52,40 @@ The banner uses the page's `<html lang>` and falls back to English. All strings 
 
 ## Install
 
-Add the config, the boot script and your tagged scripts to `<head>`, **in this order**. The boot script must load **without** `defer`, before any tag it controls:
+One line in your page's `<head>`, **without** `defer`, before any tracking script:
 
 ```html
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/melioradev/meliora-consent@v0.1.0/src/meliora-consent.css">
-<script src="/consent-config.js"></script>  <!-- your configuration, see below -->
-<script src="https://cdn.jsdelivr.net/gh/melioradev/meliora-consent@v0.1.0/src/meliora-consent-boot.js"></script>
-
-<!-- Third-party tags go after the boot script, tagged with their category: -->
-<script type="text/plain" data-consent="analytics" async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXX"></script>
-<script type="text/plain" data-consent="analytics" src="/js/analytics-init.js"></script>
-
-<script src="https://cdn.jsdelivr.net/gh/melioradev/meliora-consent@v0.1.0/src/meliora-consent-i18n.js" defer></script>
-<script src="https://cdn.jsdelivr.net/gh/melioradev/meliora-consent@v0.1.0/src/meliora-consent.js" defer></script>
+<script src="https://cdn.jsdelivr.net/gh/melioradev/meliora-consent@v0.2.0/dist/meliora-consent.min.js"
+        data-policy="/privacy/" data-policy-version="2026-11-15" data-categories="analytics marketing"></script>
 ```
 
-Or copy the [`src/`](src) folder into your site and serve the files yourself. Self-hosted, a strict Content-Security-Policy needs no extra rules for the banner itself.
-
-Then add a button to your footer, on every page:
+Then tag your tracking scripts with their category (below), and add a **Cookie settings** button to your footer:
 
 ```html
 <button type="button" data-consent-open hidden>Cookie settings</button>
 ```
 
-It starts hidden and appears only when there are choices to make, so it never shows without JavaScript.
+It starts hidden and appears only when there are choices to make, so it never shows without JavaScript. If you use [Meliora Accessibility](https://github.com/melioradev/meliora-accessibility) 1.1.0 or later, its menu also offers "Cookie settings".
+
+The file loads its own stylesheet from next to itself. The [demo page](https://melioradev.github.io/meliora-consent/#install-title) builds the whole snippet for you.
+
+| Attribute | What it sets |
+|---|---|
+| `data-categories` | The categories your site uses: `functional`, `analytics`, `marketing` (separated by spaces). |
+| `data-policy` | Link to your cookie or privacy policy. |
+| `data-policy-he`, `data-policy-ar`, … | The policy in another language. |
+| `data-policy-version` | Change it whenever your cookies or wording change: everyone is asked again. |
+| `data-consent-mode="false"` | You don't use Google tags: skip Consent Mode. |
+| `data-gpc="false"` | Don't apply Global Privacy Control. |
+| `data-renew-days` | Ask again after this many days (default 365). |
+| `data-cookie-domain` | Share the choice with subdomains, e.g. `.example.com`. |
+| `data-log` | URL that receives each choice as proof of consent ([example Worker](examples/consent-log-worker.mjs)). |
+| `data-insert-after` | CSS selector to place the banner after in the DOM. |
+| `data-css="none"` | Don't load the stylesheet; include `dist/meliora-consent.css` yourself. |
+
+To list each cookie in the settings dialog, add `window.MelioraConsentConfig` (see [Configuration](#configuration)) in a file loaded just before the script. It wins over the attributes.
+
+**Self-hosting:** copy `dist/meliora-consent.js` and `dist/meliora-consent.css` into the same folder on your site. With a strict Content-Security-Policy, self-hosting needs no extra rules; loading from jsDelivr needs `https://cdn.jsdelivr.net` in `script-src` and `style-src`. The separate files in `src/` (as in 0.1.0) still work.
 
 ### Tagging scripts
 
@@ -95,7 +105,7 @@ Until the category is allowed, a placeholder takes the iframe's place: "This con
 
 ## Configuration
 
-Put this in its own file (so your CSP can stay strict) and load it before the boot script:
+For cookie lists and everything else, put this in its own file (so your CSP can stay strict) and load it just before the banner's script:
 
 ```js
 window.MelioraConsentConfig = {
@@ -193,7 +203,8 @@ A cookie banner doesn't make a site compliant on its own, and nothing here is le
 ```sh
 npm install
 npm run serve          # demo at http://127.0.0.1:8790/
-npm run check          # syntax check
+npm run build          # regenerate dist/ from src/ (no dependencies)
+npm run check          # dist/ up to date, syntax check
 npx playwright test    # browser tests: Chromium, Firefox, WebKit
 ```
 

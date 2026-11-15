@@ -7,21 +7,20 @@
 <meta name="description" content="An accessible, bilingual cookie banner with Google Consent Mode v2. No dependencies, no tracking.">
 <link rel="icon" href="docs/favicon.png" type="image/png">
 <link rel="stylesheet" href="demo/demo.css">
-<link rel="stylesheet" href="src/meliora-consent.css">
 <!-- 1. Demo only: language and GPC switches from the URL. -->
 <script src="demo/setup.js"></script>
-<!-- 2. The site's config, then the boot script, synchronously, before any tagged script. -->
+<!-- 2. The site's config (optional: cookie lists for the dialog), then the banner: one file, in <head>, without defer,
+     before any tagged script. It loads its own stylesheet. -->
 <script src="demo/config.js"></script>
-<script src="src/meliora-consent-boot.js"></script>
+<script src="dist/meliora-consent.js"></script>
 <!-- 3. Third-party tags, inert (type="text/plain") until their category is allowed. -->
 <script type="text/plain" data-consent="analytics" src="demo/analytics.js"></script>
 <script type="text/plain" data-consent="analytics" src="demo/analytics-init.js"></script>
 <script type="text/plain" data-consent="marketing" src="demo/marketing.js"></script>
 <script type="text/plain" data-consent="functional" src="demo/functional.js"></script>
-<!-- 4. The banner itself, deferred. -->
-<script src="src/meliora-consent-i18n.js" defer></script>
-<script src="src/meliora-consent.js" defer></script>
+<!-- 4. Demo only. -->
 <script src="demo/demo.js" defer></script>
+<script src="demo/snippet.js" defer></script>
 </head>
 <body>
 <a class="skip" href="#main">Skip to main content</a>
@@ -51,6 +50,33 @@
   <section aria-labelledby="embed-title">
     <h2 id="embed-title">An embed that needs consent</h2>
     <iframe data-consent="marketing" data-src="demo/embed.html" data-provider="Example Video" title="Product demo video" width="560" height="315"></iframe>
+  </section>
+  <section aria-labelledby="install-title">
+    <h2 id="install-title">Install on your site</h2>
+    <p>Fill in your details and copy the result. One script tag does the whole banner; add <code>window.MelioraConsentConfig</code> only if you want cookie lists in the settings dialog (see the <a href="https://github.com/melioradev/meliora-consent#configuration">README</a>).</p>
+    <div class="snippet">
+      <form id="snippet-form">
+        <label for="snippet-policy">Cookie or privacy policy URL</label>
+        <input id="snippet-policy" name="policy" value="/privacy/" autocomplete="off">
+        <label for="snippet-policy-he">Hebrew policy URL <span class="hint">(optional)</span></label>
+        <input id="snippet-policy-he" name="policyHe" autocomplete="off" placeholder="/he/privacy/">
+        <label for="snippet-version">Policy version <span class="hint">(change it to ask everyone again)</span></label>
+        <input id="snippet-version" name="version" autocomplete="off">
+        <fieldset>
+          <legend>Categories your site uses</legend>
+          <label><input type="checkbox" name="categories" value="functional"> Functional (chat, maps, booking)</label>
+          <label><input type="checkbox" name="categories" value="analytics" checked> Analytics</label>
+          <label><input type="checkbox" name="categories" value="marketing"> Marketing</label>
+        </fieldset>
+        <label><input type="checkbox" name="google" checked> I use Google tags (Consent Mode v2)</label>
+      </form>
+      <div>
+<pre tabindex="0" aria-label="Your install snippet"><code id="snippet-output">&lt;script src="https://cdn.jsdelivr.net/gh/melioradev/meliora-consent@v0.2.0/dist/meliora-consent.min.js"
+        data-policy="/privacy/" data-categories="analytics"&gt;&lt;/script&gt;</code></pre>
+        <button type="button" id="snippet-copy">Copy</button>
+        <p id="snippet-status" role="status"></p>
+      </div>
+    </div>
   </section>
   <section aria-labelledby="cookie-policy">
     <h2 id="cookie-policy">Cookie policy</h2>

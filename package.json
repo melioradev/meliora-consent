@@ -1,12 +1,13 @@
 {
   "name": "meliora-consent",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "description": "An accessible, bilingual cookie banner with Google Consent Mode v2. No dependencies, no tracking.",
   "license": "SEE LICENSE IN LICENSE",
   "scripts": {
     "serve": "node tests/server.mjs",
-    "check": "node --check src/meliora-consent-boot.js && node --check src/meliora-consent-i18n.js && node --check src/meliora-consent.js && node --check examples/consent-log-worker.mjs",
+    "build": "node scripts/build.mjs",
+    "check": "node scripts/build.mjs --check && node --check src/meliora-consent-boot.js && node --check src/meliora-consent-i18n.js && node --check src/meliora-consent.js && node --check dist/meliora-consent.js && node --check examples/consent-log-worker.mjs",
     "test": "playwright test"
   },
   "devDependencies": {

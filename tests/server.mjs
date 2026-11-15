@@ -1,5 +1,5 @@
 // Static server for the demo and the tests, with a strict Content-Security-Policy (no inline scripts or styles).
-// /panel/* serves ../meliora-accessibility/src when that checkout exists, for the tests that run both together.
+// /panel/* serves ../meliora-accessibility/src and /panel-dist/* its dist/, when that checkout exists, for the tests that run both together.
 // POST /api/consent stores the last consent-log record; GET /api/consent returns it.
 import {createServer} from 'node:http';
 import {readFile} from 'node:fs/promises';
@@ -8,6 +8,7 @@ import {fileURLToPath} from 'node:url';
 
 const root = fileURLToPath(new URL('..', import.meta.url));
 const panel = path.resolve(root, '../meliora-accessibility/src');
+const panelDist = path.resolve(root, '../meliora-accessibility/dist');
 const port = Number(process.env.PORT) || 8790;
 const TYPES = {'.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.mjs': 'text/javascript; charset=utf-8', '.css': 'text/css; charset=utf-8', '.png': 'image/png', '.svg': 'image/svg+xml', '.json': 'application/json'};
 const CSP = "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; frame-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'none'; form-action 'self'";
@@ -28,6 +29,7 @@ createServer(async (request, response) => {
   }
   let base = root, file = decodeURIComponent(url.pathname);
   if (file.startsWith('/panel/')) { base = panel; file = file.slice('/panel'.length); }
+  else if (file.startsWith('/panel-dist/')) { base = panelDist; file = file.slice('/panel-dist'.length); }
   if (file.endsWith('/')) file += 'index.html';
   const full = path.join(base, path.normalize(file));
   if (!full.startsWith(base)) { response.writeHead(403).end(); return; }
