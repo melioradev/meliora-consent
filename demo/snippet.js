@@ -4,7 +4,7 @@
   if (!form) return;
   const out = document.getElementById('snippet-output');
   const status = document.getElementById('snippet-status');
-  const SRC = 'https://cdn.jsdelivr.net/gh/melioradev/meliora-consent@v0.2.0/dist/meliora-consent.min.js';
+  const SRC = 'https://cdn.jsdelivr.net/npm/meliora-consent@0.2.0/dist/meliora-consent.min.js';
   const attr = value => String(value).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
   const today = new Date().toISOString().slice(0, 10);
   if (!form.elements.version.value) form.elements.version.value = today;

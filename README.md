@@ -10,6 +10,16 @@
 </p>
 
 <p align="center">
+  <a href="https://www.npmjs.com/package/meliora-consent"><img src="https://img.shields.io/npm/v/meliora-consent?color=2557b4&label=npm" alt="npm version"></a>
+  <a href="https://bundlephobia.com/package/meliora-consent"><img src="https://img.shields.io/bundlephobia/minzip/meliora-consent?color=2557b4&label=min%2Bgzip" alt="Size, minified and gzipped"></a>
+  <img src="https://img.shields.io/badge/dependencies-0-2557b4" alt="No dependencies">
+</p>
+
+<p align="center">
+  <code>npm install meliora-consent</code>
+</p>
+
+<p align="center">
   <a href="https://melioradev.github.io/meliora-consent/"><strong>Live demo</strong></a> ·
   <a href="#install">Install</a> ·
   <a href="#configuration">Configuration</a> ·
@@ -52,22 +62,43 @@ The banner uses the page's `<html lang>` and falls back to English. All strings 
 
 ## Install
 
-One line in your page's `<head>`, **without** `defer`, before any tracking script:
+```sh
+npm install meliora-consent
+```
+
+The package is one script and one stylesheet in `dist/`, with no dependencies. Use it whichever way suits your site:
+
+**1. As a script tag (any site).** Copy `node_modules/meliora-consent/dist/meliora-consent.js` and `meliora-consent.css` into the same folder of your site, and add one line to `<head>`, **without** `defer`, before any tracking script. The script loads the stylesheet next to it by itself:
 
 ```html
-<script src="https://cdn.jsdelivr.net/gh/melioradev/meliora-consent@v0.2.0/dist/meliora-consent.min.js"
+<script src="/js/meliora-consent.js"
         data-policy="/privacy/" data-policy-version="2026-11-15" data-categories="analytics marketing"></script>
 ```
 
-Then tag your tracking scripts with their category (below), and add a **Cookie settings** button to your footer:
+**2. With a bundler** (Vite, webpack, esbuild…). Import it at the top of your entry file, after a small module that sets your config:
+
+```js
+import './consent-config.js';     // window.MelioraConsentConfig = { categories: { analytics: {} }, policyUrl: '/privacy/' };
+import 'meliora-consent';          // the stored choice and Consent Mode defaults apply at once
+import 'meliora-consent/css';
+```
+
+A bundle that loads as a module or with `defer` runs after the page is parsed. That's fine when your Google tags are tagged with `data-consent` (basic mode, recommended). If they load untagged, use the script tag instead, so the Consent Mode defaults come first.
+
+**3. From a CDN, without installing.** npm packages are on jsDelivr automatically:
+
+```html
+<script src="https://cdn.jsdelivr.net/npm/meliora-consent@0.2.0/dist/meliora-consent.min.js"
+        data-policy="/privacy/" data-policy-version="2026-11-15" data-categories="analytics marketing"></script>
+```
+
+The [demo page](https://melioradev.github.io/meliora-consent/#install-title) builds this line for you. Then tag your tracking scripts with their category (below), and add a **Cookie settings** button to your footer:
 
 ```html
 <button type="button" data-consent-open hidden>Cookie settings</button>
 ```
 
 It starts hidden and appears only when there are choices to make, so it never shows without JavaScript. If you use [Meliora Accessibility](https://github.com/melioradev/meliora-accessibility) 1.1.0 or later, its menu also offers "Cookie settings".
-
-The file loads its own stylesheet from next to itself. The [demo page](https://melioradev.github.io/meliora-consent/#install-title) builds the whole snippet for you.
 
 | Attribute | What it sets |
 |---|---|
@@ -85,7 +116,7 @@ The file loads its own stylesheet from next to itself. The [demo page](https://m
 
 To list each cookie in the settings dialog, add `window.MelioraConsentConfig` (see [Configuration](#configuration)) in a file loaded just before the script. It wins over the attributes.
 
-**Self-hosting:** copy `dist/meliora-consent.js` and `dist/meliora-consent.css` into the same folder on your site. With a strict Content-Security-Policy, self-hosting needs no extra rules; loading from jsDelivr needs `https://cdn.jsdelivr.net` in `script-src` and `style-src`. The separate files in `src/` (as in 0.1.0) still work.
+With a strict Content-Security-Policy, the script tag and bundler routes need no extra rules; the CDN route needs `https://cdn.jsdelivr.net` in `script-src` and `style-src`. The separate files in `src/` (as in 0.1.0) still work, and are in the npm package too.
 
 ### Tagging scripts
 
@@ -182,7 +213,7 @@ The visitor is asked again when `policyVersion` changes, a category is added, or
 
 ## With Meliora Accessibility
 
-- The accessibility button is bottom-right; the banner is a card at the bottom-left. When there isn't room for both, the banner becomes a full-width sheet and sets `--meliora-consent-inset`, so the accessibility button moves above it (needs a meliora-accessibility version after 1.0.0).
+- The accessibility button is bottom-right; the banner is a card at the bottom-left. When there isn't room for both, the banner becomes a full-width sheet and sets `--meliora-consent-inset`, so the accessibility button moves above it (Meliora Accessibility 1.1.0 or later).
 - Tab order: skip link → accessibility button → its × → banner.
 - High contrast, Stop animations and text size from the accessibility menu apply to the banner and the dialog.
 

@@ -3,6 +3,7 @@
 ## 0.2.0 — 2026-11-15
 
 - **One-line install:** `dist/meliora-consent.js` is the whole banner in one file. The stored choice and Consent Mode defaults apply at once, before any tag; the banner is built when the page is parsed; `meliora-consent.css` loads from next to the file. Settings can come from `data-` attributes on the script tag (`data-categories`, `data-policy`, `data-policy-<lang>`, `data-policy-version`, `data-consent-mode`, `data-gpc`, `data-renew-days`, `data-cookie-domain`, `data-log`, `data-insert-after`, `data-css="none"`). `window.MelioraConsentConfig` still works and wins over the attributes. The separate files in `src/` still work.
+- **On npm:** `npm install meliora-consent`. The package has `dist/` and `src/`, no dependencies; `import 'meliora-consent'` and `import 'meliora-consent/css'` work in bundlers. The script only loads its stylesheet by itself when it is its own file, so bundling it never requests a wrong CSS URL.
 - `npm run build` regenerates `dist/`; `npm run check` fails when it is out of date.
 - Meliora Accessibility 1.1.0 shows a "Cookie settings" button in its menu when this banner is on the page.
 - The demo page uses the one-file build and has a snippet builder for the install.

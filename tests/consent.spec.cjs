@@ -314,7 +314,20 @@ test('the demo’s snippet builder writes the one-line install from the form', a
   await expect(out).toContainText('data-policy-he="/he/privacy/"');
   await expect(out).toContainText('data-categories="analytics marketing"');
   await expect(out).toContainText('data-consent-mode="false"');
-  await expect(out).toContainText('meliora-consent@v0.2.0/dist/meliora-consent.min.js');
+  await expect(out).toContainText('npm/meliora-consent@0.2.0/dist/meliora-consent.min.js');
+});
+
+test('bundled under another file name, the script doesn’t guess a stylesheet URL', async ({page}) => {
+  const dist = require('node:fs').readFileSync(require('node:path').resolve(__dirname, '../dist/meliora-consent.js'), 'utf8');
+  await page.route('**/tests/fixtures/app-bundle.js', route => route.fulfill({contentType: 'text/javascript', body: dist}));
+  await page.route('**/tests/fixtures/bundled.html', route => route.fulfill({contentType: 'text/html', body:
+    '<!doctype html><html lang="en"><head><meta charset="utf-8"><title>Bundled</title><script src="/demo/config.js"></script><script src="app-bundle.js"></script></head><body><main id="main"><h1>Bundled</h1></main></body></html>'}));
+  const requested = [];
+  page.on('request', r => requested.push(new URL(r.url()).pathname));
+  await page.goto('/tests/fixtures/bundled.html');
+  await expect(banner(page)).toBeAttached();
+  expect(await page.locator('link[rel="stylesheet"]').count()).toBe(0);
+  expect(requested.filter(p => p.endsWith('.css'))).toEqual([]);
 });
 
 test('Accept all and Reject all look identical', async ({page}) => {

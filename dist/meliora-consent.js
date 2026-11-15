@@ -27,7 +27,8 @@
   set('cookieDomain', data.cookieDomain);
   set('logEndpoint', data.log);
   set('insertAfter', data.insertAfter);
-  if (data.css !== 'none' && script.src) {
+  // Only from the package's own file: bundled into a site's JavaScript, load dist/meliora-consent.css yourself.
+  if (data.css !== 'none' && /meliora-consent(\.min)?\.js($|[?#])/.test(script.src)) {
     const link = document.createElement('link');
     link.rel = 'stylesheet';
     link.href = script.src.replace(/\.js(?=$|[?#])/, '.css'); // meliora-consent.min.js → meliora-consent.min.css

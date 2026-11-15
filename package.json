@@ -1,14 +1,52 @@
 {
   "name": "meliora-consent",
   "version": "0.2.0",
-  "private": true,
-  "description": "An accessible, bilingual cookie banner with Google Consent Mode v2. No dependencies, no tracking.",
+  "description": "An accessible cookie banner for any website. Reject as easy as accept, Google Consent Mode v2, ten languages, no dependencies, no tracking.",
+  "keywords": [
+    "cookie-consent",
+    "cookie-banner",
+    "gdpr",
+    "consent-mode",
+    "privacy",
+    "accessibility",
+    "a11y",
+    "wcag",
+    "rtl",
+    "i18n"
+  ],
+  "homepage": "https://melioradev.github.io/meliora-consent/",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/melioradev/meliora-consent.git"
+  },
+  "bugs": {
+    "url": "https://github.com/melioradev/meliora-consent/issues"
+  },
+  "author": "Meliora Novotech Ltd (https://melioranovotech.com)",
   "license": "SEE LICENSE IN LICENSE",
+  "main": "dist/meliora-consent.js",
+  "exports": {
+    ".": "./dist/meliora-consent.js",
+    "./css": "./dist/meliora-consent.css",
+    "./dist/*": "./dist/*",
+    "./src/*": "./src/*",
+    "./package.json": "./package.json"
+  },
+  "jsdelivr": "dist/meliora-consent.js",
+  "unpkg": "dist/meliora-consent.js",
+  "sideEffects": true,
+  "files": [
+    "dist/",
+    "src/",
+    "examples/",
+    "CHANGELOG.md"
+  ],
   "scripts": {
     "serve": "node tests/server.mjs",
     "build": "node scripts/build.mjs",
     "check": "node scripts/build.mjs --check && node --check src/meliora-consent-boot.js && node --check src/meliora-consent-i18n.js && node --check src/meliora-consent.js && node --check dist/meliora-consent.js && node --check examples/consent-log-worker.mjs",
-    "test": "playwright test"
+    "test": "playwright test",
+    "prepublishOnly": "npm run check"
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.13.0",
