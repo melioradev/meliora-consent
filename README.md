@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="docs/favicon.png" width="72" height="72" alt="">
+</p>
+
 <h1 align="center">Meliora Consent</h1>
 
 <p align="center">
@@ -13,46 +17,59 @@
 </p>
 
 <p align="center">
-  <img src="docs/screenshots/banner-light.png" width="420" alt="The banner at the bottom-left of a page, with Accept all, Reject all and Choose cookies buttons">
+  <img src="docs/screenshots/banner-light.png" width="420" alt="The banner at the bottom-left of a page, with Accept all, Reject all and Choose cookies buttons in the same style">
   &nbsp;
-  <img src="docs/screenshots/dialog-light.png" width="420" alt="The cookie settings dialog with a switch for each category">
+  <img src="docs/screenshots/dialog-light.png" width="420" alt="The cookie settings dialog with a switch for each category and the list of its cookies">
 </p>
-
-> **Status: 0.1.0, not yet released.** Every non-English string needs a native speaker's review before launch. Using this banner doesn't make a site compliant by itself, and none of this is legal advice.
+<p align="center">
+  <img src="docs/screenshots/banner-dark-he.png" width="420" alt="The banner in Hebrew, right to left, in a dark theme">
+  &nbsp;
+  <img src="docs/screenshots/banner-mobile.png" width="160" alt="On a phone the banner is a full-width sheet and the accessibility button moves above it">
+</p>
 
 ---
 
 ## What it does
 
 - **Nothing optional runs before a choice.** Analytics, marketing and other third-party scripts stay inert until their category is allowed. Ignoring the banner is not consent.
-- **Reject is as easy as accept.** "Accept all", "Reject all" and "Choose cookies" sit together on the first layer, in the same style. There's no × and no "by continuing to browse…".
+- **Reject is as easy as accept.** "Accept all", "Reject all" and "Choose cookies" sit together on the first layer, in exactly the same style. There's no × and no "by continuing to browse…".
 - **Specific choices.** The settings dialog has a switch per category (functional, analytics, marketing) and lists each category's cookies.
 - **Easy to withdraw.** A "Cookie settings" button in your footer reopens the dialog. Turning a category off deletes its declared first-party cookies and reloads the page.
+- **Embeds wait too.** YouTube videos, maps and other iframes get an accessible placeholder with an "Allow and show" button.
 - **Google Consent Mode v2** defaults and updates, set before any Google tag loads.
 - **Global Privacy Control** is honored: marketing stays off.
-- **Accessible:** keyboard-first, WCAG 2.1 AA, never hides the element that has focus, works at 200% zoom and 320px width. Native `<dialog>` with a focus trap and Esc.
-- **Follows the page language** (`<html lang>`) in ten languages, with right-to-left Hebrew and Arabic.
-- **Works with the [Meliora accessibility panel](https://github.com/melioradev/meliora-accessibility):** the banner stays clear of its button and follows its High contrast, Stop animations and text size settings.
+- **Accessible:** keyboard-first, WCAG 2.1 AA, never hides the element that has focus, works at 200% zoom and 320px width. The settings dialog is a native `<dialog>` with a focus trap and Esc.
+- **Follows the page language** (`<html lang>`), with right-to-left Hebrew and Arabic.
+- **Works with [Meliora Accessibility](https://github.com/melioradev/meliora-accessibility):** the banner stays clear of its button and follows its High contrast, Stop animations and text size settings.
 - **No banner when there's nothing to ask.** With no optional categories configured, it does nothing.
+- **Strict CSP friendly:** no inline scripts or styles, no requests to anyone but your own site.
+
+## Languages
+
+English (default) · العربية · 中文（简体） · Français · Deutsch · עברית · Italiano · Русский · Español · Українська
+
+The banner uses the page's `<html lang>` and falls back to English. All strings are in [`src/meliora-consent-i18n.js`](src/meliora-consent-i18n.js), and every one can be overridden from the config. Corrections from native speakers are very welcome.
 
 ## Install
 
-Copy the four files from `src/` to your site, then add this to `<head>`, **in this order**:
+Add the config, the boot script and your tagged scripts to `<head>`, **in this order**. The boot script must load **without** `defer`, before any tag it controls:
 
 ```html
-<link rel="stylesheet" href="/consent/meliora-consent.css">
-<script src="/consent/config.js"></script>                  <!-- your configuration, below -->
-<script src="/consent/meliora-consent-boot.js"></script>     <!-- synchronous: before any tag -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/melioradev/meliora-consent@v0.1.0/src/meliora-consent.css">
+<script src="/consent-config.js"></script>  <!-- your configuration, see below -->
+<script src="https://cdn.jsdelivr.net/gh/melioradev/meliora-consent@v0.1.0/src/meliora-consent-boot.js"></script>
 
 <!-- Third-party tags go after the boot script, tagged with their category: -->
 <script type="text/plain" data-consent="analytics" async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXX"></script>
 <script type="text/plain" data-consent="analytics" src="/js/analytics-init.js"></script>
 
-<script src="/consent/meliora-consent-i18n.js" defer></script>
-<script src="/consent/meliora-consent.js" defer></script>
+<script src="https://cdn.jsdelivr.net/gh/melioradev/meliora-consent@v0.1.0/src/meliora-consent-i18n.js" defer></script>
+<script src="https://cdn.jsdelivr.net/gh/melioradev/meliora-consent@v0.1.0/src/meliora-consent.js" defer></script>
 ```
 
-And a button in your footer, on every page:
+Or copy the [`src/`](src) folder into your site and serve the files yourself. Self-hosted, a strict Content-Security-Policy needs no extra rules for the banner itself.
+
+Then add a button to your footer, on every page:
 
 ```html
 <button type="button" data-consent-open hidden>Cookie settings</button>
@@ -62,10 +79,10 @@ It starts hidden and appears only when there are choices to make, so it never sh
 
 ### Tagging scripts
 
-- `type="text/plain"` makes the browser ignore the script. `data-consent` names its category: `functional`, `analytics` or `marketing` (several, space-separated, means all are needed).
+- `type="text/plain"` makes the browser ignore the script. `data-consent` names its category: `functional`, `analytics` or `marketing` (several, separated by spaces, means all are needed).
 - When the category is allowed, the script is re-created as a real script, in document order. Scripts without `async` keep their order. Use `data-type="module"` for module scripts.
-- Use external files. Inline tagged scripts only run if your Content-Security-Policy allows them (a nonce is copied over).
-- Add each vendor's domains to your CSP as usual. The banner's own files need nothing beyond `'self'`.
+- Prefer external files. Inline tagged scripts only run if your Content-Security-Policy allows them (a nonce is copied over).
+- Add each vendor's domains to your CSP as usual.
 
 ### Embeds
 
@@ -78,10 +95,12 @@ Until the category is allowed, a placeholder takes the iframe's place: "This con
 
 ## Configuration
 
+Put this in its own file (so your CSP can stay strict) and load it before the boot script:
+
 ```js
 window.MelioraConsentConfig = {
   policyUrl: {default: '/privacy/', he: '/he/privacy/'}, // or one URL
-  policyVersion: '2026-11-15',      // change it whenever the cookie list or wording changes: everyone is asked again
+  policyVersion: '2026-11-15',      // change it when the cookie list or wording changes: everyone is asked again
   necessary: {cookies: [/* listed in the dialog, never blocked */]},
   categories: {                     // only the categories you list appear
     analytics: {
@@ -104,7 +123,15 @@ window.MelioraConsentConfig = {
 };
 ```
 
-Cookie names ending in `*` match by prefix. Every cookie your site sets should be listed: the tests in this repository fail on undeclared cookies, and yours should too.
+Cookie names ending in `*` match by prefix. List every cookie your site sets: this repository's tests fail on undeclared cookies, and yours should too.
+
+### Theming
+
+The banner uses your site's CSS custom properties when they exist, and light defaults otherwise. They're the same ones Meliora Accessibility uses:
+
+`--ink` (text) · `--muted` · `--surface` (background) · `--tint` (hover) · `--line` (borders) · `--field-border` · `--brand` (links) · `--button` / `--button-hover` · `--focus`
+
+Define them for your dark theme and the banner follows.
 
 ## Google Consent Mode v2
 
@@ -141,27 +168,25 @@ document.addEventListener('meliora-consent', e => { /* e.detail: {choices, metho
  "choices":{"functional":false,"analytics":true,"marketing":false}}
 ```
 
-The visitor is asked again when `policyVersion` changes, a category is added, or the choice is older than `renewAfterDays`. If storage is blocked, the choice lasts for the current page only.
+The visitor is asked again when `policyVersion` changes, a category is added, or the choice is older than `renewAfterDays`. If storage is blocked, the choice lasts for the current page only. The optional consent log stores the same record without IP address or user agent ([example Worker](examples/consent-log-worker.mjs)).
 
-## With the Meliora accessibility panel
+## With Meliora Accessibility
 
-- The panel's button is bottom-right, and the banner is a card at the bottom-left. When there isn't room for both side by side, the banner becomes a full-width sheet and sets `--meliora-consent-inset` so the panel's button moves above it (needs a meliora-accessibility version after 1.0.0).
+- The accessibility button is bottom-right; the banner is a card at the bottom-left. When there isn't room for both, the banner becomes a full-width sheet and sets `--meliora-consent-inset`, so the accessibility button moves above it (needs a meliora-accessibility version after 1.0.0).
 - Tab order: skip link → accessibility button → its × → banner.
-- High contrast, Stop animations and text size from the panel apply to the banner and the dialog.
+- High contrast, Stop animations and text size from the accessibility menu apply to the banner and the dialog.
 
 ## Accessibility
 
-- Banner: a named region, early in the reading order, not focused or announced on load (it doesn't interrupt). After a choice, "Cookie choices saved" is announced and focus moves to `<main>`.
-- Dialog: native `<dialog>`, focus starts on its title, Esc closes it without saving, and focus returns to the button that opened it.
-- Switches are `<button aria-pressed>`. The knob position, not only its color, shows the state.
+- The banner is a named region early in the reading order. It isn't focused or announced on load, so it doesn't interrupt. After a choice, "Cookie choices saved" is announced and focus moves to `<main>`.
+- The dialog starts on its title, Esc closes it without saving, and focus returns to the button that opened it.
+- Switches are `<button aria-pressed>`, and the knob position, not only its color, shows the state.
 - Focus is never hidden behind the banner (WCAG 2.2, 2.4.11), and a spacer at the end of the page lets the last content scroll above it.
-- All buttons are at least 44×44 px. The banner is never more than half the screen high.
+- Every button is at least 44×44 px, and the banner is never more than half the screen high.
 
-## Languages
+Tested with axe, keyboard-only use, 200% text at 320px, and right-to-left languages. Please report anything that doesn't work with your browser or assistive technology in [Issues](https://github.com/melioradev/meliora-consent/issues).
 
-English · Arabic · Chinese (Simplified) · French · German · Hebrew · Italian · Russian · Spanish · Ukrainian
-
-The banner uses the page's `<html lang>` and falls back to English. Strings are in `src/meliora-consent-i18n.js`.
+A cookie banner doesn't make a site compliant on its own, and nothing here is legal advice. Check your cookie list and wording with someone who knows the law where your visitors are.
 
 ## Development
 
@@ -169,15 +194,21 @@ The banner uses the page's `<html lang>` and falls back to English. Strings are 
 npm install
 npm run serve          # demo at http://127.0.0.1:8790/
 npm run check          # syntax check
-npx playwright test    # browser tests (Chromium, Firefox, WebKit)
+npx playwright test    # browser tests: Chromium, Firefox, WebKit
 ```
 
-The tests serve every page with a strict Content-Security-Policy and fail on any CSP violation or page error. The tests that run with the accessibility panel need a checkout of `meliora-accessibility` next to this repository, and are skipped otherwise.
+The tests serve every page with a strict Content-Security-Policy and fail on any CSP violation or page error. The tests that run with the accessibility menu need a checkout of [meliora-accessibility](https://github.com/melioradev/meliora-accessibility) next to this repository, and are skipped otherwise.
 
-## Not included
-
-IAB TCF, regional variants by geolocation, automatic blocking of untagged scripts, a hosted cookie scanner, and US "Do Not Sell or Share" flows beyond honoring GPC.
+Not included: IAB TCF, regional variants by geolocation, automatic blocking of untagged scripts, a hosted cookie scanner, and US "Do Not Sell or Share" flows beyond honoring GPC.
 
 ## License
 
-MIT with visible attribution: the "Made by Meliora Novotech Ltd" credit in the settings dialog must stay. See [LICENSE](LICENSE).
+**MIT with visible attribution:** see [LICENSE](LICENSE).
+
+- You may use, copy, modify and redistribute it, including in commercial products, for free.
+- Every site or product that uses it, or a modified version, must visibly show **"Made by Meliora Novotech Ltd"** (or a translation), with working links to <https://melioranovotech.com> and to this repository.
+- The unmodified banner already shows this credit at the bottom of its cookie settings dialog, so keeping it there is all you need to do.
+
+---
+
+<p align="center">Made by <a href="https://melioranovotech.com">Meliora Novotech Ltd</a></p>
